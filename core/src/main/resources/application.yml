@@ -1,0 +1,14 @@
+---
+spring:
+  profiles: default
+
+logging:
+  config: classpath:logback_default.xml
+
+
+
+
+
+
+
+

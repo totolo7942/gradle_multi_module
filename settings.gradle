@@ -1,0 +1,4 @@
+rootProject.name = 'grissom-multi-module'
+
+include 'core'
+include 'api'

@@ -1,0 +1,82 @@
+plugins {
+    id "org.springframework.boot" version "2.2.0.RELEASE"
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    id "io.franzbecker.gradle-lombok" version "1.14"
+    id "org.flywaydb.flyway" version "6.0.8"
+}
+
+ext {
+    queryDslVersion = '4.2.1'
+    lombokVersion = '1.18.10'
+    flywayVersion = '6.0.8'
+    hikaricpVersion = '3.4.1'
+    lettuceCoreVersion = '5.2.1'
+    guavaVersion = '28.1'
+    commonsPool2Version = '2.7.0'
+    commonsLangVersion = '3.9'
+}
+
+group = "com.tistory.eclipse4j"
+version = "0.0.1-SNAPSHOT"
+
+bootJar {
+    enabled = false
+    archiveVersion = '0.0.1-SNAPSHOT'
+    archiveExtension = 'jar'
+}
+
+jar {
+    enabled = true
+}
+
+dependencies {
+
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-configuration-processor")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-starter-data-redis")
+    annotationProcessor("org.springframework.boot:spring-boot-starter-data-jpa")
+
+
+    compile("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok")
+
+    compile("com.querydsl:querydsl-core:${queryDslVersion}")
+    compile("com.querydsl:querydsl-jpa:${queryDslVersion}")
+    compile("com.querydsl:querydsl-apt:${queryDslVersion}")
+    annotationProcessor("com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+
+    compile("com.google.guava:guava:${guavaVersion}-jre")
+    compile('org.hibernate:hibernate-ehcache')
+    compile('org.hibernate:hibernate-envers')
+
+    compile("org.apache.commons:commons-pool2:${commonsPool2Version}")
+
+    compile("org.flywaydb:flyway-core:${flywayVersion}")
+    compile("com.zaxxer:HikariCP:${hikaricpVersion}")
+
+    compile("org.apache.commons:commons-lang3:${commonsLangVersion}")
+
+    runtime("mysql:mysql-connector-java")
+}
+
+
+def querydslGenratedSrc = 'src/main/generated'
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+    querydslSourcesDir = querydslGenratedSrc
+}
+compileQuerydsl{
+    options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+sourceSets {
+    main.java.srcDirs += [ querydslGenratedSrc ]
+}
+tasks.withType(JavaCompile) {
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslGenratedSrc)
+}
